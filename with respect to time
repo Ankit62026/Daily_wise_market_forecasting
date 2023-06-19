@@ -1,0 +1,41 @@
+#FORECASTING - PREDICTING W.R.T time.
+#FORECASTING - FB PPROPHET (Facebook)
+#REGRESSION - PREDICTING one entity W.R.T another.
+#1 Quintal - 100kg 
+#1 Ton - 1000kg
+
+#Let us create dataframe
+import pandas as pd
+df=pd.read_html('DailyWiseMarketArrivals.html')[-1] #slicing table
+df
+#Let us check the null values officially
+df.isnull().sum()
+df=df.dropna() #It drops all the null values
+
+#FB PROPHET takes only 2 columns as input - ds and y
+# The column ds should be a relation of time
+#The column y should be a relation of price
+#Hence we will rename the date column as ds, modal price column as y
+df = df.rename(columns={'Modal Price (Rs/q)':'y','Date':'ds'})
+df
+#Now let us create a dataframe and consider only 2 column from the old dataframe -ds and y
+df1=df[['ds','y']]
+df1
+df1.info()
+#The data of ds column is in onject format and the data of y column is also in object format
+#Hence we are changing the datatype of the date column to datetime format
+#We are changing the datatype of y column in integer format
+df1['ds'] =pd.to_datetime(df1['ds'])
+df1['y']=df1['y'].astype(int)
+df1.info()
+#FB PROPHET
+import prophet
+op=prophet.Prophet()
+op.fit(df1)
+forecast=op.make_future_dataframe(periods=1000,freq='D')
+forecast=op.predict(forecast)
+op.plot(forecast, xlabel='Date',ylabel='Potato Prices/q')
+#The black dots -  Actual prices of potatoes from 1st jan 2005 to 17th sep 2022
+#The light blue shade - Minimum and the Maximum value of potato price as predicted by our model
+#The dark blue line - BEST FIT LINE
+
